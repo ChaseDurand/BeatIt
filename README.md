@@ -1,3 +1,3 @@
 # BeatIt
 
-Metronome project using Juce. Starting by following The Audio Programmer's tutorials.
+Metronome using Juce. Starting by following Joshua Hodge's (The Audio Programmer) 4-part tutorial.
