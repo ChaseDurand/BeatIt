@@ -14,8 +14,8 @@ Metronome::Metronome()
 {
     mFormatManager.registerBasicFormats();
     
-    File myFile { File::getSpecialLocation(File::SpecialLocationType::userDesktopDirectory) };
-    auto mySamples = myFile.findChildFiles(File::TypesOfFileToFind::findFiles, false, "click3.aif"); //Need to change path to custom sample path in Source folder
+    File myFile { File::getSpecialLocation(File::SpecialLocationType::userDesktopDirectory)};
+    auto mySamples = myFile.findChildFiles(File::TypesOfFileToFind::findFiles, false, "*.wav"); // Grabs the first wav file from the desktop lol
     
     jassert(mySamples[0].exists());
     
