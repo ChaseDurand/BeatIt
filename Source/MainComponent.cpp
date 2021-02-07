@@ -49,7 +49,7 @@ void MainComponent::stop()
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    mMetronome.prepareToPlay(sampleRate);
+    mMetronome.prepareToPlay(samplesPerBlockExpected, sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -57,11 +57,9 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
 
     bufferToFill.clearActiveBufferRegion();
     
-    auto buffer = bufferToFill.numSamples;
-    
     if (mPlayState == PlayState::Playing)
     {
-        mMetronome.countSamples(buffer);
+        mMetronome.getNextAudioBlock(bufferToFill);
     }
     else
     {
