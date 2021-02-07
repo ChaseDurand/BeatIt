@@ -15,20 +15,20 @@ Metronome::Metronome()
     mFormatManager.registerBasicFormats();
     
     File myFile { File::getSpecialLocation(File::SpecialLocationType::userDesktopDirectory) };
-    auto mySamples = myFile.findChildFiles(File::TypesOfFileToFind::findFiles, false, "click1.aif"); //Need to change path to custom sample path in Source folder
+    auto mySamples = myFile.findChildFiles(File::TypesOfFileToFind::findFiles, false, "click3.aif"); //Need to change path to custom sample path in Source folder
     
     jassert(mySamples[0].exists());
     
     auto formatReader = mFormatManager.createReaderFor(mySamples[0]);
     
     pMetronomeSample.reset(new AudioFormatReaderSource (formatReader, true));
+    mUpdateInterval = 60.0 / mBpm * mSampleRate;
 }
 
 void Metronome::prepareToPlay(int samplesPerBlock, double sampleRate)
 {
     mSampleRate = sampleRate;
-    mInterval = 60.0 / mBpm * mSampleRate;
-    HighResolutionTimer::startTimer(60);
+    mUpdateInterval = 60.0 / mBpm * mSampleRate;
     
     if (pMetronomeSample != nullptr){
         pMetronomeSample->prepareToPlay(samplesPerBlock, sampleRate);
@@ -38,29 +38,34 @@ void Metronome::prepareToPlay(int samplesPerBlock, double sampleRate)
 
 void Metronome::getNextAudioBlock (const AudioSourceChannelInfo& bufferToFill)
 {
-    auto bufferSize = bufferToFill.numSamples;
+    const auto bufferSize = bufferToFill.numSamples;
     mTotalSamples+=bufferSize;
     
-    mSamplesRemaining = mTotalSamples % mInterval;
+    mSamplesRemaining = mTotalSamples % mUpdateInterval;
     
-    DBG("Samples Remaining: " << mSamplesRemaining);
-    DBG("Beat Interval: " << mInterval);
-    
-    if ((mSamplesRemaining + bufferSize) >= mInterval)
+    if ((mSamplesRemaining + bufferSize) >= mUpdateInterval)
     {
-        DBG("CLICK");
-        DBG("Total Samples: " << mTotalSamples);
+        const auto timeToStartPlaying = mUpdateInterval - mSamplesRemaining;
+        pMetronomeSample->setNextReadPosition(0);
+        
+        for (auto sample = 0; sample < bufferSize; sample++)
+        {
+            if (sample == timeToStartPlaying)
+            {
+                pMetronomeSample->getNextAudioBlock(bufferToFill);
+            }
+
+        }
+        
+    }
+    if (pMetronomeSample->getNextReadPosition() != 0)
+    {
+        pMetronomeSample->getNextAudioBlock(bufferToFill);
     }
     
-    //pMetronomeSample->getNextAudioBlock(const AudioSourceChannelInfo& bufferToFill));
 }
 
 void Metronome::reset()
 {
     mTotalSamples = 0;
-}
-
-void Metronome::hiResTimerCallback()
-{
-    mInterval = 60.0 / mBpm * mSampleRate;
 }
