@@ -3,15 +3,15 @@
 //==============================================================================
 MainComponent::MainComponent()
 {
-    playButton.setRadioGroupId(1);
-    playButton.setToggleState(false, NotificationType::dontSendNotification);
-    playButton.onClick = [this]() {play();} ;
-    addAndMakeVisible(playButton);
+    mPlayButton.setRadioGroupId(1);
+    mPlayButton.setToggleState(false, NotificationType::dontSendNotification);
+    mPlayButton.onClick = [this]() {play();} ;
+    addAndMakeVisible(mPlayButton);
     
-    stopButton.setRadioGroupId(1);
-    playButton.setToggleState(true, NotificationType::dontSendNotification);
-    stopButton.onClick = [this]() { stop(); };
-    addAndMakeVisible(stopButton);
+    mStopButton.setRadioGroupId(1);
+    mPlayButton.setToggleState(true, NotificationType::dontSendNotification);
+    mStopButton.onClick = [this]() { stop(); };
+    addAndMakeVisible(mStopButton);
     
     setSize (200, 200);
 
@@ -37,19 +37,19 @@ MainComponent::~MainComponent()
 
 void MainComponent::play()
 {
-    playState = PlayState::Playing;
+    mPlayState = PlayState::Playing;
 }
 
 void MainComponent::stop()
 {
-    playState = PlayState::Stopped;
-    metronome.reset();
+    mPlayState = PlayState::Stopped;
+    mMetronome.reset();
 }
 
 //==============================================================================
 void MainComponent::prepareToPlay (int samplesPerBlockExpected, double sampleRate)
 {
-    metronome.prepareToPlay(sampleRate);
+    mMetronome.prepareToPlay(sampleRate);
 }
 
 void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& bufferToFill)
@@ -59,9 +59,9 @@ void MainComponent::getNextAudioBlock (const juce::AudioSourceChannelInfo& buffe
     
     auto buffer = bufferToFill.numSamples;
     
-    if (playState == PlayState::Playing)
+    if (mPlayState == PlayState::Playing)
     {
-        metronome.countSamples(buffer);
+        mMetronome.countSamples(buffer);
     }
     else
     {
@@ -91,8 +91,8 @@ void MainComponent::resized()
     Rectangle<int> bounds = getLocalBounds();
     
     FlexBox flexBox;
-    flexBox.items.add(FlexItem(100, 100, playButton));
-    flexBox.items.add(FlexItem(100, 100, stopButton));
+    flexBox.items.add(FlexItem(100, 100, mPlayButton));
+    flexBox.items.add(FlexItem(100, 100, mStopButton));
     flexBox.performLayout(bounds);
     
 }
